@@ -1,10 +1,396 @@
 <!DOCTYPE html>
-<html>
+<html lang="ar" dir="rtl">
 <head>
-    <title>موقعي الخارق</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>StreamVault | Netflix Style</title>
+    <!-- خطوط جوجل الفخمة -->
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&family=Poppins:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        /* CSS: تصميم واجهة نتفليكس بالكامل */
+        :root {
+            --primary-color: #E50914;
+            --background-color: #141414;
+            --card-bg: #181818;
+            --text-color: #FFFFFF;
+            --sub-text: #AAAAAA;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Cairo', 'Poppins', sans-serif;
+            background-color: var(--background-color);
+            color: var(--text-color);
+            overflow-x: hidden;
+        }
+
+        /* الهيدر واللوجو واختيار اللغة */
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 4%;
+            background: linear-gradient(to bottom, rgba(0,0,0,0.7) 0%, rgba(0,0,0,0) 100%);
+            position: absolute;
+            width: 100%;
+            z-index: 10;
+        }
+
+        .logo {
+            color: var(--primary-color);
+            font-size: 2rem;
+            font-weight: bold;
+            letter-spacing: 1px;
+        }
+
+        .nav-controls {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+        }
+
+        select {
+            background-color: rgba(0, 0, 0, 0.4);
+            color: white;
+            border: 1px solid #aaa;
+            padding: 5px 10px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        /* البانر الرئيسي الكبير */
+        .hero {
+            height: 70vh;
+            background: linear-gradient(to top, var(--background-color) 0%, rgba(0,0,0,0.3) 60%, rgba(0,0,0,0.7) 100%), 
+                        url('https://images.unsplash.com/photo-1574267431647-c82eda25ef24?q=80&w=1600') no-repeat center center/cover;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            padding: 0 4%;
+        }
+
+        .hero-content {
+            max-width: 600px;
+        }
+
+        .hero h1 {
+            font-size: 3.5rem;
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
+
+        .hero p {
+            font-size: 1.2rem;
+            margin-bottom: 20px;
+            color: var(--sub-text);
+        }
+
+        .btn-play {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 10px 25px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        .btn-play:hover {
+            background-color: #b80710;
+        }
+
+        /* ممرات الأفلام (Rows) */
+        .main-container {
+            padding: 20px 4%;
+        }
+
+        .row-title {
+            font-size: 1.5rem;
+            margin: 20px 0 10px 0;
+            font-weight: bold;
+        }
+
+        .movies-grid {
+            display: flex;
+            gap: 10px;
+            overflow-x: auto;
+            padding: 10px 0;
+            scroll-behavior: smooth;
+        }
+
+        .movies-grid::-webkit-scrollbar {
+            display: none; /* إخفاء شريط التمرير المزعج */
+        }
+
+        .movie-card {
+            min-width: 200px;
+            width: 200px;
+            background-color: var(--card-bg);
+            border-radius: 4px;
+            overflow: hidden;
+            cursor: pointer;
+            transition: transform 0.3s;
+            position: relative;
+        }
+
+        .movie-card:hover {
+            transform: scale(1.05);
+            z-index: 2;
+        }
+
+        .movie-card img {
+            width: 100%;
+            height: 280px;
+            object-fit: cover;
+        }
+
+        .movie-info {
+            padding: 10px;
+        }
+
+        .movie-info h4 {
+            font-size: 0.95rem;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        /* مشغل الفيديو (المودال الخفي) */
+        .video-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.95);
+            z-index: 100;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+        }
+
+        .video-container {
+            width: 80%;
+            max-width: 800px;
+            position: relative;
+        }
+
+        video {
+            width: 100%;
+            border-radius: 8px;
+            box-shadow: 0 0 20px rgba(229, 9, 20, 0.5);
+        }
+
+        .close-btn {
+            position: absolute;
+            top: -40px;
+            right: 0;
+            color: white;
+            font-size: 2rem;
+            cursor: pointer;
+            background: none;
+            border: none;
+        }
+
+        /* إشعار حفظ تقدم المشاهدة */
+        .save-toast {
+            margin-top: 15px;
+            color: #4caf50;
+            font-size: 0.9rem;
+            display: none;
+        }
+
+        /* تنسيقات خاصة باللغات الأجنبية (LTR) */
+        .ltr {
+            direction: ltr;
+        }
+        .ltr header, .ltr .movies-grid {
+            direction: ltr;
+        }
+    </style>
 </head>
 <body>
-    <h1>أهلاً بكم في موقعي الأول!</h1>
-    <p>أنا بطل خارق وقدرت أعمل الويبسايت ده بنفسي على جيتهب! 😎</p>
+
+    <!-- الهيدر -->
+    <header>
+        <div class="logo">StreamVault</div>
+        <div class="nav-controls">
+            <!-- قائمة اختيار اللغات الثلاثة -->
+            <select id="languageSelect" onchange="changeLanguage()">
+                <option value="ar" selected>العربية</option>
+                <option value="en">English</option>
+                <option value="it">Italiano</option>
+            </select>
+        </div>
+    </header>
+
+    <!-- البانر الرئيسي -->
+    <section class="hero">
+        <div class="hero-content">
+            <h1 id="heroTitle">فيلم السهرة الخارق</h1>
+            <p id="heroDesc">استمتع بمشاهدة أحدث الأفلام والمسلسلات مجاناً وبأعلى جودة، مع ميزة حفظ دقيقة المشاهدة تلقائياً.</p>
+            <button class="btn-play" id="heroBtn" onclick="openPlayer('فيديو البانر الرئيسي', 'https://www.w3schools.com/html/mov_bbb.mp4', 'hero')">▶ تشغيل</button>
+        </div>
+    </section>
+
+    <!-- المحتوى والأفلام -->
+    <main class="main-container">
+        <!-- قسم المسلسلات الحصرية -->
+        <div class="row-title" id="row1Title">المسلسلات الحصرية</div>
+        <div class="movies-grid">
+            <!-- مسلسل 1 -->
+            <div class="movie-card" onclick="openPlayer('المسلسل الخارق - الحلقة 1', 'https://www.w3schools.com/html/movie.mp4', 'series1_ep1')">
+                <img src="https://images.unsplash.com/photo-1616530940355-351fabd9524b?q=80&w=400" alt="Series 1">
+                <div class="movie-info">
+                    <h4 class="media-title-1">المسلسل الخارق: حلقة 1</h4>
+                </div>
+            </div>
+            <!-- مسلسل 2 -->
+            <div class="movie-card" onclick="openPlayer('مسلسل الغموض - الحلقة 1', 'https://www.w3schools.com/html/mov_bbb.mp4', 'series2_ep1')">
+                <img src="https://images.unsplash.com/photo-1536440136628-849c177e76a1?q=80&w=400" alt="Series 2">
+                <div class="movie-info">
+                    <h4 class="media-title-2">مسلسل الغموض: حلقة 1</h4>
+                </div>
+            </div>
+        </div>
+
+        <!-- قسم الأفلام الرائجة -->
+        <div class="row-title" id="row2Title">الأفلام الرائجة</div>
+        <div class="movies-grid">
+            <!-- فيلم 1 -->
+            <div class="movie-card" onclick="openPlayer('فيلم الأكشن الخيالي', 'https://www.w3schools.com/html/movie.mp4', 'movie_action')">
+                <img src="https://images.unsplash.com/photo-1594909122845-11baa439b7bf?q=80&w=400" alt="Movie 1">
+                <div class="movie-info">
+                    <h4 class="media-title-3">فيلم الأكشن الخيالي</h4>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- مشغل الفيديو (المودال الخفي) -->
+    <div class="video-modal" id="videoPlayerModal">
+        <div class="video-container">
+            <button class="close-btn" onclick="closePlayer()">✕</button>
+            <h3 id="currentVideoTitle" style="margin-bottom: 15px; text-align: center;"></h3>
+            <video id="mainVideo" controls></video>
+            <p class="save-toast" id="saveToast">تم حفظ مكان التوقف تلقائياً! ✅</p>
+        </div>
+    </div>
+
+    <!-- JavaScript: السحر الخاص باللغات وحفظ وقت الفيديو -->
+    <script>
+        // نصوص اللغات الثلاثة
+        const translations = {
+            ar: {
+                heroTitle: "فيلم السهرة الخارق",
+                heroDesc: "استمتع بمشاهدة أحدث الأفلام والمسلسلات مجاناً وبأعلى جودة، مع ميزة حفظ دقيقة المشاهدة تلقائياً.",
+                heroBtn: "▶ تشغيل",
+                row1Title: "المسلسلات الحصرية",
+                row2Title: "الأفلام الرائجة",
+                t1: "المسلسل الخارق: حلقة 1",
+                t2: "مسلسل الغموض: حلقة 1",
+                t3: "فيلم الأكشن الخيالي",
+                toast: "تم حفظ مكان التوقف تلقائياً! ✅"
+            },
+            en: {
+                heroTitle: "Featured Movie Tonight",
+                heroDesc: "Enjoy watching the latest movies and series for free in high quality, with auto-save watch progress feature.",
+                heroBtn: "▶ Play",
+                row1Title: "Exclusive Series",
+                row2Title: "Trending Movies",
+                t1: "The Super Series: Ep 1",
+                t2: "Mystery Show: Ep 1",
+                t3: "The Sci-Fi Action Movie",
+                toast: "Watch progress saved automatically! ✅"
+            },
+            it: {
+                heroTitle: "Film In Evidenza Stasera",
+                heroDesc: "Divertiti a guardare gli ultimi film e serie gratuitamente in alta qualità, con funzione di salvataggio automatico.",
+                heroBtn: "▶ Riproduci",
+                row1Title: "Serie Esclusive",
+                row2Title: "Film di Tendenza",
+                t1: "La Super Serie: Ep 1",
+                t2: "Show del Mistero: Ep 1",
+                t3: "Il Film d'Azione di Fantascienza",
+                toast: "Progressi di visione salvati! ✅"
+            }
+        };
+
+        let currentMediaId = ''; // لتعريف الفيديو المفتوح حالياً
+
+        // 1. نظام تغيير اللغات وتحويل الاتجاهات (RTL / LTR)
+        function changeLanguage() {
+            const lang = document.getElementById('languageSelect').value;
+            const body = document.body;
+
+            if(lang === 'ar') {
+                body.setAttribute('dir', 'rtl');
+                body.classList.remove('ltr');
+            } else {
+                body.setAttribute('dir', 'ltr');
+                body.classList.add('ltr');
+            }
+
+            // تطبيق الترجمات على العناصر
+            document.getElementById('heroTitle').innerText = translations[lang].heroTitle;
+            document.getElementById('heroDesc').innerText = translations[lang].heroDesc;
+            document.getElementById('heroBtn').innerText = translations[lang].heroBtn;
+            document.getElementById('row1Title').innerText = translations[lang].row1Title;
+            document.getElementById('row2Title').innerText = translations[lang].row2Title;
+            document.querySelector('.media-title-1').innerText = translations[lang].t1;
+            document.querySelector('.media-title-2').innerText = translations[lang].t2;
+            document.querySelector('.media-title-3').innerText = translations[lang].t3;
+        }
+
+        // 2. نظام فتح مشغل الفيديو واسترجاع وقت التوقف السابق
+        function openPlayer(title, videoUrl, mediaId) {
+            const modal = document.getElementById('videoPlayerModal');
+            const video = document.getElementById('mainVideo');
+            
+            currentMediaId = mediaId;
+            document.getElementById('currentVideoTitle').innerText = title;
+            video.src = videoUrl;
+            modal.style.display = 'flex';
+
+            // استرجاع التقدم المحفوظ من الـ LocalStorage إن وُجد
+            const savedTime = localStorage.getItem(currentMediaId);
+            if (savedTime) {
+                video.currentTime = parseFloat(savedTime);
+            }
+
+            video.play();
+
+            // نظام تتبع الوقت وحفظه كل ثانية تلقائياً
+            video.ontimeupdate = () => {
+                localStorage.setItem(currentMediaId, video.currentTime);
+            };
+        }
+
+        // 3. قفل المشغل وإظهار إشعار الحفظ
+        function closePlayer() {
+            const modal = document.getElementById('videoPlayerModal');
+            const video = document.getElementById('mainVideo');
+            const toast = document.getElementById('saveToast');
+            const lang = document.getElementById('languageSelect').value;
+
+            toast.innerText = translations[lang].toast;
+            toast.style.display = 'block';
+
+            // قفل المشغل بعد ثانية لإعطاء وقت لرؤية إشعار الحفظ
+            setTimeout(() => {
+                video.pause();
+                modal.style.display = 'none';
+                toast.style.display = 'none';
+            }, 1200);
+        }
+    </script>
 </body>
 </html>
